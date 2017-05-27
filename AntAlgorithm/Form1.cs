@@ -12,9 +12,20 @@ namespace AntAlgorithm
 {
 	public partial class Form1 : Form
 	{
+		
 		public Form1()
 		{
 			InitializeComponent();
+
+			var graph = new Graph("input.txt");
 		}
+
+		//public double GetProbability(int i, int j, double length)
+		//{
+		//	double n = 1 / length;
+
+
+		//	return 0;
+		//}
 	}
 }
