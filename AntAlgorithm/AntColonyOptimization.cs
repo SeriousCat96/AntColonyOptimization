@@ -14,11 +14,13 @@ namespace AntAlgorithm
 		public const string DefaultGraphFileName = "input.txt";
 
 		// Коэффициент альфа
-		public static int Alpha { get; set; }
+		public static double Alpha { get; set; }
 		// Коэффициент бета
-		public static int Beta { get; set; }
+		public static double Beta { get; set; }
 		// Коэффициент Q
 		public static int Q { get; set; }
+		// Коэффициент высыхания феромонов
+		public static double P { get; set; }
 		// Количество итераций алгоритма
 		public static int IterationsCount { get; set; }
 		// Количество городов
@@ -42,19 +44,21 @@ namespace AntAlgorithm
 		{
 			Alpha			= 1;
 			Beta			= 1;
-			Q				= 1;
-			IterationsCount = 1000;
+			Q				= 10;
+			P				= 0.00005;
+			IterationsCount = 50000;
 			Cities		    = new Graph(DefaultGraphFileName);
 			CitiesCount	    = Cities.Count;
 
 			BestPath		= new int[CitiesCount];
 			BestLength		= int.MaxValue;
 
+			Pheromones		= new double[CitiesCount, CitiesCount];
 			SetDefaultPheromones();
 		}
 
 		// Вычисление оптимального пути
-		public static void Calculate()
+		public static int[] Calculate()
 		{
 			for(int i = 0; i < IterationsCount; i++)
 			{
@@ -66,7 +70,11 @@ namespace AntAlgorithm
 					BestLength = length;
 					BestPath = path;
 				}
+
+				UpdatePheromones(path, length);
 			}
+
+			return BestPath;
 		}
 
 		// Построение пути
@@ -79,7 +87,7 @@ namespace AntAlgorithm
 			path[0] = city;
 			visited[city] = true;
 
-			for(int i = 1; i < CitiesCount - 1; i++)
+			for(int i = 1; i < CitiesCount; i++)
 			{
 				var neighbourCities = new List<int>(GetNeighbourCities(city))
 					.Where((e) => !visited[e])
@@ -118,6 +126,40 @@ namespace AntAlgorithm
 			return probabilities;
 		}
 
+		// Обновление феромонов
+		static void UpdatePheromones(int[] path, int length)
+		{
+			// Отмечаем рёбра пути
+			var visited = new bool[CitiesCount, CitiesCount];
+
+			for(int i = 0; i < CitiesCount; i++)
+			{
+				visited[path[i], path[i + 1]] = true;
+			}
+
+			for(int i = 0; i < CitiesCount; i++)
+			{
+				for(int j = 0; j < CitiesCount; j++)
+				{
+					double delta = 0;
+
+					// Если ребро входит в путь, то увеличивается кол-во феромонов на этом ребре
+					// Иначе по-тихоньку кол-во феромоноа "высыхает"
+					if(visited[i, j])
+					{
+						delta = (double)Q / length;
+					}
+
+					Pheromones[i, j] = (1 - P) * Pheromones[i, j] + delta;
+
+					if(Pheromones[i, j] < MinPheromoneValue && i != j)
+					{
+						Pheromones[i, j] = MinPheromoneValue;
+					}
+				}
+			}
+		}
+
 		// Выбор следующего города
 		static int ChooseNextCity(double[] distribution, int[] neighbourCities)
 		{
@@ -133,7 +175,7 @@ namespace AntAlgorithm
 				else prev = distribution[i];
 			}
 
-			return 0;
+			return -1;
 		}
 
 		// Получает вектор распределения вероятностей для выбора следующего города
@@ -145,7 +187,7 @@ namespace AntAlgorithm
 			for(int j = 0; j < distribution.Length; j++)
 			{
 				distribution[j] += probabilities[j] + prev;
-				prev = probabilities[j];
+				prev = distribution[j];
 			}
 
 			return distribution;
@@ -166,7 +208,7 @@ namespace AntAlgorithm
 			foreach(var neighbourCity in neighbourCities)
 			{
 				var n = 1.0 / Cities[city, neighbourCity];
-				sum += n * Pheromones[city, neighbourCity];
+				sum += Math.Pow(n, Beta) * Math.Pow(Pheromones[city, neighbourCity], Alpha);
 			}
 
 			return sum;
@@ -194,7 +236,7 @@ namespace AntAlgorithm
 			int sum = 0;
 			for(int i = 0; i < CitiesCount; i++)
 			{
-				sum += Cities[i, i + 1];
+				sum += Cities[path[i], path[i + 1]];
 			}
 
 			return sum;

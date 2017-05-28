@@ -17,7 +17,7 @@ namespace AntAlgorithm
 		{
 			InitializeComponent();
 
-			var graph = new Graph("input.txt");
+			var best = AntColonyOptimization.Calculate();
 		}
 
 		//public double GetProbability(int i, int j, double length)
