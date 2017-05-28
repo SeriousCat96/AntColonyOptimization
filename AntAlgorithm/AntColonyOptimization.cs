@@ -44,16 +44,21 @@ namespace AntAlgorithm
 		{
 			Alpha			= 0.5;
 			Beta			= 0.5;
-			Q				= 7;
+			Q				= 5;
 			P				= 0.00005;
 			IterationsCount = 10000;
-			Cities		    = new Graph(DefaultGraphFileName);
-			CitiesCount	    = Cities.Count;
 
-			BestPath		= new int[CitiesCount];
-			BestLength		= int.MaxValue;
+			ResetAlgorithm();
+		}
 
-			Pheromones		= new double[CitiesCount, CitiesCount];
+		public static void ResetAlgorithm()
+		{
+			Cities		= new Graph(DefaultGraphFileName);
+			CitiesCount = Cities.Count;
+			BestPath	= new int[CitiesCount];
+			BestLength  = int.MaxValue;
+			Pheromones  = new double[CitiesCount, CitiesCount];
+
 			SetDefaultPheromones();
 		}
 
@@ -266,6 +271,20 @@ namespace AntAlgorithm
 					else Pheromones[i, j] = 0;
 				}
 			}
+		}
+
+		public static string ToString()
+		{
+			var sb = new StringBuilder();
+
+			foreach(var city in BestPath)
+			{
+				sb.Append(city + ", ");
+			}
+
+			return sb
+				.ToString()
+				.Substring(0, sb.Length - 2);
 		}
 	}
 }

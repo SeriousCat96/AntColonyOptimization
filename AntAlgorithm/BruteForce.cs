@@ -103,5 +103,19 @@ namespace AntAlgorithm
 
 			return sum;
 		}
+
+		public static string ToString()
+		{
+			var sb = new StringBuilder();
+
+			foreach(var city in BestPath)
+			{
+				sb.Append(city + ", ");
+			}
+
+			return sb
+				.ToString()
+				.Substring(0, sb.Length - 2);
+		}
 	}
 }
