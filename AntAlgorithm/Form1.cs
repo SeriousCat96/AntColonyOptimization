@@ -17,8 +17,8 @@ namespace AntAlgorithm
 		{
 			InitializeComponent();
 
-			//var best = AntColonyOptimization.Calculate();
-			var best = BruteForce.Calculate();
+			var best1 = AntColonyOptimization.Calculate();
+			var best2 = BruteForce.Calculate();
 		}
 
 		//public double GetProbability(int i, int j, double length)

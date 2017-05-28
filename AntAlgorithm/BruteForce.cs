@@ -74,7 +74,7 @@ namespace AntAlgorithm
 
 			if(path[0] != path[path.Length - 1]) return false;
 
-			for(int i = 0; i < CitiesCount - 1; i++)
+			for(int i = 0; i < CitiesCount; i++)
 			{
 				if(Cities[path[i], path[i + 1]] == 0) return false;
 			}

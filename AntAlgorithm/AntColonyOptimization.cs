@@ -42,11 +42,11 @@ namespace AntAlgorithm
 		// Задаёт значения по умолчанию
 		public static void SetDefaults()
 		{
-			Alpha			= 1;
-			Beta			= 1;
-			Q				= 10;
+			Alpha			= 0.5;
+			Beta			= 0.5;
+			Q				= 7;
 			P				= 0.00005;
-			IterationsCount = 50000;
+			IterationsCount = 10000;
 			Cities		    = new Graph(DefaultGraphFileName);
 			CitiesCount	    = Cities.Count;
 
@@ -63,6 +63,9 @@ namespace AntAlgorithm
 			for(int i = 0; i < IterationsCount; i++)
 			{
 				var path = BuildRoute();
+
+				if(path == null) continue;
+
 				var length = GetLength(path);
 
 				if(length < BestLength)
@@ -97,6 +100,13 @@ namespace AntAlgorithm
 				var distribution = GetDistributionVector(probabilities);
 
 				city = ChooseNextCity(distribution, neighbourCities);
+
+				// зашли в тупик
+				if(city == -1)
+				{
+					return null;
+				}
+
 				path[i] = city;
 				visited[city] = true;
 			}
@@ -249,8 +259,10 @@ namespace AntAlgorithm
 			{
 				for(int j = 0; j < CitiesCount; j++)
 				{
-					if(i != j)
+					if(i != j && Cities[i, j] != 0)
+					{
 						Pheromones[i, j] = 1;
+					}
 					else Pheromones[i, j] = 0;
 				}
 			}
